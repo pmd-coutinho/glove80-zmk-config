@@ -56,6 +56,29 @@
 #define TAP_DANCE_TIMEOUT_MS 200
 
 /*****************************************************************************/
+                            /* Layer Conditions */
+/*****************************************************************************/
+
+/* Conditional Layer helper */
+#define LAYER_CONDITION(NAME, IF, THEN) \
+    NAME { \
+        if-layers = <IF>; \
+        then-layer = <THEN>; \
+    };
+
+/ {
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
+
+        /* Restrict selection continuation to Editing layer */
+        LAYER_CONDITION(continue_selection, EDITING SELECT_CONT_SL, SELECT_CONT)
+
+        /* Layer lock feature for Editing layer */
+        LAYER_CONDITION(editing_mo, EDITING_MO, EDITING)
+    };
+};
+
+/*****************************************************************************/
                         /* Basic Helper C Macros */
 /*****************************************************************************/
 
@@ -277,6 +300,34 @@
     };
 };
 
+
+/*****************************************************************************/
+                            /* Thumb Layer Keys */
+/*****************************************************************************/
+
+/* Home thumb layer tap without quick tap; faster layer switching */
+#define FAST_SWITCHING_THUMB_LAYER_TAP(NAME, TAP_BINDING) \
+    BALANCED_HOLD_TAP(NAME, \
+        tapping-term-ms = <THUMBS_TAPPING_TERM_MS>;  /* Rolls send tap key */ \
+        bindings = <&mo>, <TAP_BINDING>; \
+    )
+
+/* Reaching thumb layer tap with double tap to repeat */
+#define REPEATING_THUMB_LAYER_TAP(NAME, TAP_BINDING) \
+    BALANCED_HOLD_TAP(NAME, \
+        tapping-term-ms = <THUMBS_TAPPING_TERM_MS>;  /* Rolls send tap key */ \
+        quick-tap-ms = <REPEATING_THUMBS_QUICK_TAP_MS>;  /* 2x tap repeats */ \
+        bindings = <&mo>, <TAP_BINDING>; \
+    )
+
+/* Used on Base, Editing and Numbers layers to enable fast switching */
+FAST_SWITCHING_THUMB_LAYER_TAP(fst_lt, &kp)
+
+/* Used on Media and Function layers for Tab and Enter to enable hold to 
+   repeat */
+REPEATING_THUMB_LAYER_TAP(rt_lt, &kp)
+
+
 /*****************************************************************************/
                         /* Triple Function Shift Keys */
 /*****************************************************************************/
@@ -293,6 +344,53 @@ MOD_MORPH(lshft_caps, &sk LSHFT, &instant_caps_lock, MOD_LSFT)
 /* Triple function right Shift with Mac/PC support */
 MOD_MORPH(rshft_bspcwd_mac, &sk RSHFT, &kp LA(BACKSPACE), MOD_RSFT)
 MOD_MORPH(rshft_bspcwd_pc, &sk RSHFT, &kp LC(BACKSPACE), MOD_RSFT)
+
+/*****************************************************************************/
+                    /* Custom Base Layer Punctuation */
+/*****************************************************************************/
+
+/* Custom base layer punctuation */
+SHIFT_MORPH(comma_semi, &kp COMMA, &kp SEMI)
+SHIFT_MORPH(dot_colon, &kp DOT, &kp COLON)
+SHIFT_MORPH(question_excl, &kp QUESTION, &kp EXCL)
+
+/*****************************************************************************/
+                    /* Numbers Layer Custom Shifted Pairs */
+/*****************************************************************************/
+
+/* Autoshift Behavior using defined timer */
+#define AUTOSHIFT(NAME, HOLD, TAP) \
+    HOLD_TAP(NAME, \
+        flavor = "tap-preferred"; \
+        tapping-term-ms = <AUTOSHIFT_TAPPING_TERM_MS>;  /* Hold for Shift */ \
+        bindings = <HOLD>, <TAP>; \
+    )
+
+AUTOSHIFT(as, &kp, &kp)  /* Main Autoshift Behavior */
+
+/* Autoshifting Mod-Morph Behavior that sends another key when Shift is held */
+#define AUTOSHIFT_MORPH(NAME, LOWER, UPPER) \
+    SHIFT_MORPH(NAME, &as UPPER LOWER, &kp UPPER)
+
+/* Numbers layer custom number and symbol pairs with Autoshift */
+AUTOSHIFT_MORPH(as_bslh_caret, BSLH, CARET)
+AUTOSHIFT_MORPH(as_n7_lbkt, N7, LBKT)
+AUTOSHIFT_MORPH(as_n8_rbkt, N8, RBKT)
+AUTOSHIFT_MORPH(as_n9_star, N9, STAR)
+AUTOSHIFT_MORPH(as_fslh_amps, FSLH, AMPS)
+AUTOSHIFT_MORPH(as_colon_excl, COLON, EXCL)
+AUTOSHIFT_MORPH(as_n4_lpar, N4, LPAR)
+AUTOSHIFT_MORPH(as_n5_rpar, N5, RPAR)
+AUTOSHIFT_MORPH(as_n6_equal, N6, EQUAL)
+AUTOSHIFT_MORPH(as_hash_pipe, HASH, PIPE)
+AUTOSHIFT_MORPH(as_at_prcnt, AT, PRCNT)
+AUTOSHIFT_MORPH(as_n1_lbrc, N1, LBRC)
+AUTOSHIFT_MORPH(as_n2_rbrc, N2, RBRC)
+AUTOSHIFT_MORPH(as_n3_dllr, N3, DLLR)
+AUTOSHIFT_MORPH(as_grave_tilde, GRAVE, TILDE)
+AUTOSHIFT_MORPH(as_minus_plus, MINUS, PLUS)
+AUTOSHIFT_MORPH(as_n0_under, N0, UNDER)
+AUTOSHIFT_MORPH(as_lt_gt, LT, GT)
 
 /*****************************************************************************/
                 /* Editing Layer Alternative Shortcuts */
@@ -394,3 +492,69 @@ SELECT_LINE_START_MACRO(sel_ln_bwd_pc, \
     PC_START_OF_NEXT_LN, SEL(UP), PC_SEL_START_OF_LN)
 SELECT_LINE_CONT_MACRO(cont_sel_ln_fwd_pc, SEL(DOWN), PC_SEL_START_OF_LN)
 SELECT_LINE_CONT_MACRO(cont_sel_ln_bwd_pc, SEL(UP), PC_SEL_START_OF_LN)
+
+/*****************************************************************************/
+                    /* System Layer */
+/*****************************************************************************/
+
+/* Native ZMK Macros for selecting Bluetooth profiles */
+#define SELECT_BLUETOOTH_OUTPUT(NAME, BT_PROFILE_NUMBER) \
+    FAST_MACRO(NAME, &out OUT_BLE &bt BT_SEL BT_PROFILE_NUMBER)
+SELECT_BLUETOOTH_OUTPUT(out_bt_0, 0)
+SELECT_BLUETOOTH_OUTPUT(out_bt_1, 1)
+SELECT_BLUETOOTH_OUTPUT(out_bt_2, 2)
+SELECT_BLUETOOTH_OUTPUT(out_bt_3, 3)
+TAP_DANCE(out_disc_bt_0, &out_bt_0, &bt BT_DISC 0)
+TAP_DANCE(out_disc_bt_1, &out_bt_1, &bt BT_DISC 1)
+TAP_DANCE(out_disc_bt_2, &out_bt_2, &bt BT_DISC 2)
+TAP_DANCE(out_disc_bt_3, &out_bt_3, &bt BT_DISC 3)
+
+/* Native ZMK Macro for clearing all Bluetooth profiles */
+FAST_MACRO(bt_clr_all_macro, &macro_tap \
+    &bt BT_SEL 0 &bt BT_CLR \
+    &bt BT_SEL 1 &bt BT_CLR \
+    &bt BT_SEL 2 &bt BT_CLR \
+    &bt BT_SEL 3 &bt BT_CLR \
+    &bt BT_SEL 0 \
+)
+
+/* Double tap to confirm dangerous actions using defined timer */
+#define DOUBLE_TAP(NAME, BINDING) \
+    TAP_DANCE(NAME, &none, BINDING)
+
+DOUBLE_TAP(confirm_bt_clr, &bt BT_CLR)  /* Clear current Bluetooth profile */
+DOUBLE_TAP(confirm_bt_clr_all, &bt_clr_all_macro)  /* Clear all BT profiles */
+
+/* The reset Behaviors always reset the left half of the keyboard when nested
+   in a Tap-Dance; reference ZMK issue #1494 */
+// DOUBLE_TAP(confirm_reset, &sys_reset)  /* Soft reset */
+// DOUBLE_TAP(confirm_bootloader, &bootloader)  /* Bootloader reset */
+
+/* Macros for turning layers on or off */
+FAST_MACRO1(on, &macro_tap &macro_param_1to1 &mo MACRO_PLACEHOLDER \
+    &macro_param_1to1 &tog MACRO_PLACEHOLDER \
+)
+FAST_MACRO1(off, &macro_tap &macro_param_1to1 &mo MACRO_PLACEHOLDER)
+
+/*****************************************************************************/
+                /* Editing & Number Layer Lock Status */
+/*****************************************************************************/
+
+/* Feature status helper */
+#define FEATURE_STATUS(NAME, STATUS_BINDINGS, BACKSPACE_BINDINGS) \
+    ZMKMACRO(NAME, \
+        tap-ms = <FAST_MACRO_TAP_MS>; \
+        wait-ms = <15>; \
+        bindings \
+            = <&kp SPACE STATUS_BINDINGS &kp SPACE> \
+            , <&macro_wait_time 500 &none &macro_wait_time 15> \
+            , <&kp BACKSPACE BACKSPACE_BINDINGS &kp BACKSPACE> \
+            ; \
+    )
+
+/* Editing & Number layer lock status */
+FEATURE_STATUS(editing_numbers_status_locked,
+    &kp LS(L) &kp LS(O) &kp LS(C) &kp LS(K) &kp LS(E) &kp LS(D), \
+    &kp BACKSPACE &kp BACKSPACE &kp BACKSPACE &kp BACKSPACE &kp BACKSPACE \
+    &kp BACKSPACE \
+)

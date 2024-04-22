@@ -11,14 +11,18 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/rgb.h>
 
-#include "base.keymap"
-
 // layers
 #define DEFAULT 0
 #define LOWER 1
 #define MAGIC 2
 #define FACTORY_TEST 3
 #define EDITING 4
+#define EDITING_MO 5
+#define SELECT_CONT 6
+#define SELECT_CONT_SL 7
+#define BASE_LAYERS DEFAULT
+
+#include "base.keymap"
 
 / {
     behaviors {
@@ -81,7 +85,7 @@
         bt_3: bt_profile_macro_3 {
             label = "BT_3";
             compatible = "zmk,behavior-macro";
-            #binƒding-cells = <0>;
+            #binding-cells = <0>;
             bindings
                 = <&out OUT_BLE>,
                   <&bt BT_SEL 3>;
@@ -105,8 +109,8 @@
             &kp EQUAL      &kp N1   &kp N2      &kp N3      &kp N4      &kp N5                                                                     &kp N6  &kp N7  &kp N8      &kp N9      &kp N0      &kp MINUS
             &kp TAB        &kp Q    &kp W       &kp E       &kp R       &kp T                                                                      &kp Y   &kp U   &kp I       &kp O       &kp P       &kp BSLH
             &kp ESC        &kp A    &kp S       &kp D       &kp F       &kp G                                                                      &kp H   &kp J   &kp K       &kp L       &kp SEMI    &kp SQT
-            &kp GRAVE      &kp Z    &kp X       &kp C       &kp V       &kp B   &kp LSHFT   &kp LGUI   &layer_td  &kp LCTRL  &kp RGUI &kp RSHFT   &kp N   &kp M   &kp COMMA   &kp DOT     &kp FSLH    &kp PG_UP
-            &magic MAGIC 0 &kp HOME &kp END     &kp LEFT    &kp RIGHT           &kp BSPC    &kp DEL     &kp LALT   &kp RALT  &kp RET   &kp SPACE           &kp UP  &kp DOWN    &kp LBKT    &kp RBKT    &kp PG_DN
+            &kp GRAVE      &kp Z    &kp X       &kp C       &kp V       &kp B   &rshft_bspcwd_mac  &kp LGUI   &layer_td  &kp LCTRL  &kp RGUI &lshft_caps   &kp N   &kp M   &kp COMMA   &kp DOT     &kp FSLH    &kp PG_UP
+            &magic MAGIC 0 &kp HOME &kp END     &kp LEFT    &kp RIGHT           &fst_lt EDITING_MO BACKSPACE    &kp LCTRL     &kp LALT   &kp LALT  &kp RET   &kp SPACE           &kp UP  &kp DOWN    &kp LBKT    &kp RBKT    &kp PG_DN
             >;
         };
 
@@ -142,7 +146,6 @@
             &kp N5   &kp N1   &kp N7   &kp N3   &kp N9            &kp N7   &kp N8   &kp N9      &kp N9   &kp N8   &kp N7            &kp N9   &kp N3   &kp N7   &kp N1   &kp N5
             >;
         };
-
         editing_layer {
             bindings = <
   &none      &none     &none     &none                 &none                                                                                      &none            &none            &none              &none   &none
@@ -151,6 +154,37 @@
   &none  &sk LCTRL  &sk LALT  &sk LGUI             &sk LSHFT   &none                                                          &kp LEFT         &kp DOWN           &kp UP        &kp RIGHT  &copy_sel_all_mac   &none
   &none      &none     &none     &none                 &none   &none  &trans  &trans   &none  &trans  &trans  &kp INS  &sel_wd_bwd_mac  &sel_ln_fwd_mac  &sel_ln_bwd_mac  &sel_wd_fwd_mac    &paste_undo_mac   &none
   &none      &none     &none     &none                 &none          &trans  &trans  &trans  &trans  &trans   &trans                             &none            &none            &none              &none   &none
+            >;
+        };
+         editing_mo_layer {
+            bindings = <
+  &none   &none   &none   &none   &none                                                                   &none   &none   &none  &trans  &trans
+  &none   &none   &none   &none   &none   &none                                                   &none   &none   &none   &none  &trans  &trans
+  &none  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans   &none
+  &none  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans   &none
+  &none  &trans  &trans  &trans  &trans  &trans  &trans   &none   &none   &none   &none  &trans  &trans  &trans  &trans  &trans  &trans   &none
+ &trans   &none   &none   &none   &none          &trans  &trans   &none   &none  &trans  &trans           &none   &none   &none   &none   &none
+            >;
+        };
+        select_cont_layer {
+            bindings = <
+  &none   &none   &none   &none   &none                                                                                 &none                 &none                 &none                &trans  &trans
+  &none   &none   &none   &none   &none   &none                                                   &none                 &none                 &none                 &none                &trans  &trans
+  &none  &trans  &trans  &trans  &trans  &trans                                                  &trans                &trans                &trans                &trans                &trans   &none
+  &none  &trans  &trans  &trans  &trans  &trans                                                  &trans                &trans                &trans                &trans                &trans   &none
+  &none  &trans  &trans  &trans  &trans  &trans  &trans   &none   &none   &none   &none  &trans  &cont_sel_wd_bwd_mac  &cont_sel_ln_fwd_mac  &cont_sel_ln_bwd_mac  &cont_sel_wd_fwd_mac  &trans   &none
+ &trans   &none   &none   &none   &none          &trans  &trans   &none   &none  &trans  &trans                         &none                 &none                 &none                 &none   &none
+            >;
+        };
+
+        select_cont_sl_layer {
+            bindings = <
+  &none   &none   &none   &none   &none                                                                   &none   &none   &none  &trans  &trans
+  &none   &none   &none   &none   &none   &none                                                   &none   &none   &none   &none  &trans  &trans
+  &none  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans   &none
+  &none  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans   &none
+  &none  &trans  &trans  &trans  &trans  &trans  &trans   &none   &none   &none   &none  &trans  &trans  &trans  &trans  &trans  &trans   &none
+ &trans   &none   &none   &none   &none          &trans  &trans   &none   &none  &trans  &trans           &none   &none   &none   &none   &none
             >;
         };
     };
