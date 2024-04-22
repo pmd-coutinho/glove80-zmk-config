@@ -20,6 +20,7 @@
 #define EDITING_MO 5
 #define SELECT_CONT 6
 #define SELECT_CONT_SL 7
+#define SYMBOL 8
 #define BASE_LAYERS DEFAULT
 
 #include "base.keymap"
@@ -110,7 +111,7 @@
             &kp TAB        &kp Q    &kp W       &kp E       &kp R       &kp T                                                                      &kp Y   &kp U   &kp I       &kp O       &kp P       &kp BSLH
             &kp ESC        &kp A    &kp S       &kp D       &kp F       &kp G                                                                      &kp H   &kp J   &kp K       &kp L       &kp SEMI    &kp SQT
             &kp GRAVE      &kp Z    &kp X       &kp C       &kp V       &kp B   &rshft_bspcwd_mac  &kp LGUI   &layer_td  &kp LCTRL  &kp RGUI &lshft_caps   &kp N   &kp M   &kp COMMA   &kp DOT     &kp FSLH    &kp PG_UP
-            &magic MAGIC 0 &kp HOME &kp END     &kp LEFT    &kp RIGHT           &fst_lt EDITING_MO BACKSPACE    &kp LCTRL     &kp LALT   &kp LALT  &kp RET   &kp SPACE           &kp UP  &kp DOWN    &kp LBKT    &kp RBKT    &kp PG_DN
+            &magic MAGIC 0 &kp HOME &kp END     &kp LEFT    &kp RIGHT           &fst_lt EDITING_MO BACKSPACE    &kp LCTRL     &kp LALT   &kp LALT  &kp RET   &fst_lt SYMBOL SPACE           &kp UP  &kp DOWN    &kp LBKT    &kp RBKT    &kp PG_DN
             >;
         };
 
@@ -185,6 +186,16 @@
   &none  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &trans  &trans  &trans   &none
   &none  &trans  &trans  &trans  &trans  &trans  &trans   &none   &none   &none   &none  &trans  &trans  &trans  &trans  &trans  &trans   &none
  &trans   &none   &none   &none   &none          &trans  &trans   &none   &none  &trans  &trans           &none   &none   &none   &none   &none
+            >;
+        };
+        symbol_layer {
+            bindings = <
+     &none      &none      &none      &none     &none                                                                                                        &none                &none                &none                &none   &none
+     &none  &kp GRAVE   &kp LPAR   &kp RPAR  &kp SEMI  &kp COMMA                                                                        &none                &none                &none                &none                &none   &none
+  &kp EXCL   &kp LBRC    &kp SQT    &kp DQT  &kp RBRC  &kp QMARK                                                                     &kp SEMI             &sk LSHFT             &sk LGUI           &sk LALT             &sk LCTRL   &none
+  &kp HASH  &kp CARET  &kp EQUAL  &kp UNDER  &kp DLLR   &kp STAR                                                                      &kp DOT             &kp BSPC              &kp TAB            &kp SPACE              &kp RET   &none
+    &kp AT     &kp LT   &kp PIPE  &kp MINUS    &kp GT   &kp FSLH   &kp BSLH    &kp DOT  &kp STAR              &none   &none   &none  &kp FSLH              &kp DEL          &kp LS(TAB)                &none                &none   &none
+ &kp TILDE   &kp AMPS   &kp LBKT   &kp RBKT  &kp PLUS             &kp PRCNT  &kp COLON  &kp SEMI              &none   &none   &none                         &trans               &trans               &trans               &trans   &none
             >;
         };
     };
