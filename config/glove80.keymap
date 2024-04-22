@@ -13,6 +13,16 @@
 
 #define HYPER LC(LS(LG(LALT)))
 
+/* Create a ZMK Behavior without having to specify the name three times */
+#define ZMK_BEHAVIOR(NAME, ...) \
+    / { \
+        behaviors { \
+            NAME: NAME { \
+                __VA_ARGS__ \
+            }; \
+        }; \
+    };
+
 /* Generic helper for Sticky Layer state machine actions and state
    transitions. Used to build more specific helpers for features that use this
    technique. SL_BEHAVIOR argument allows different features to use distinct
@@ -63,6 +73,16 @@
     STICKY_LAYER_HELPER(NAME, TIMEOUT_MS, \
         quick-release;  /* Release as soon as another key is pressed */ \
         /delete-property/ ignore-modifiers;  /* Mods release Sticky Layer */ \
+    )
+
+/* Mod-Morph helper */
+#define MOD_MORPH(NAME, STANDARD, MORPHED, MODS, ...) \
+    ZMK_BEHAVIOR(NAME, \
+        compatible = "zmk,behavior-mod-morph"; \
+        #binding-cells = <0>; \
+        bindings = <STANDARD>, <MORPHED>; \
+        mods = <(MODS)>; \
+        __VA_ARGS__ \
     )
 
 /* Mod-Morph that sends another key when Alt is held */
