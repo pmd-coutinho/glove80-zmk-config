@@ -1,0 +1,396 @@
+/*****************************************************************************/
+                                /* Timers */
+/*****************************************************************************/
+
+/* Macro timers; can be increased for systems that don't like 0ms Macros */
+#define FAST_MACRO_TAP_MS 0
+#define FAST_MACRO_WAIT_MS 0
+
+/* How long Sticky Keys and Sticky Layers stay pressed */
+#define STICKY_KEY_RELEASE_AFTER_MS 600
+
+/* How quickly Combo keys must be pressed together */
+#define COMBO_TIMEOUT_MS 25
+
+/* How quickly both thumb Shift keys must be pressed together to activate Caps
+   Word */
+#define CAPS_WORD_COMBO_TIMEOUT_MS 150
+
+/* How long to hold to activate home row mods for same side or mouse usage */
+#define HOME_ROW_MODS_TAPPING_TERM_MS 300
+
+/* Cool down after typing before home row mods can be used */
+#define HOME_ROW_MODS_REQUIRE_PRIOR_IDLE_MS 175
+
+/* How quickly to double tap home row mods to hold down the tap action */
+#define HOME_ROW_MODS_QUICK_TAP_MS 200
+
+/* How long thumb keys can be held before rolls send the higher layer key */
+#define THUMBS_TAPPING_TERM_MS 200
+
+/* How quickly to double tap repeating thumb keys to hold the tap action */
+#define REPEATING_THUMBS_QUICK_TAP_MS 250
+
+/* How long until each phase of the capital I component of the typing assist 
+   feature times out */
+#define CAP_I_TIMEOUT_MS 700
+
+/* How long until each phase of the sentence case component of the typing 
+   assist feature times out */
+#define SENT_CASE_TIMEOUT_MS 60000
+
+/* How long until the dynamic repeat key feature times out */
+#define REPEAT_KEY_TIMEOUT_MS 700
+
+/* How long until the backspace word feature times out after the repeat key
+   is pressed */
+#define REPEAT_KEY_BACKSPACE_WORD_TIMEOUT_MS 250
+
+/* How long to hold for Autoshift */
+#define AUTOSHIFT_TAPPING_TERM_MS 200
+
+/* How long until the word and line selection feature times out */
+#define SELECT_TIMEOUT_MS 60000
+
+/* How quickly Tap Dance keys must be double tapped to activate */
+#define TAP_DANCE_TIMEOUT_MS 200
+
+/*****************************************************************************/
+                        /* Basic Helper C Macros */
+/*****************************************************************************/
+
+/* Combo helper */
+#define ZMK_COMBO(NAME, TIMEOUT_MS, KEY_POSITIONS, LAYERS, BINDINGS) \
+    NAME { \
+        timeout-ms = <TIMEOUT_MS>; \
+        key-positions = <KEY_POSITIONS>; \
+        layers = <LAYERS>; \
+        bindings = <BINDINGS>; \
+    }; \
+
+/* Create a ZMK Behavior without having to specify the name three times */
+#define ZMK_BEHAVIOR(NAME, ...) \
+    / { \
+        behaviors { \
+            NAME: NAME { \
+                __VA_ARGS__ \
+            }; \
+        }; \
+    };
+
+/* Hold-Tap helper */
+#define HOLD_TAP(NAME, ...) \
+    ZMK_BEHAVIOR(NAME, \
+        compatible = "zmk,behavior-hold-tap"; \
+        #binding-cells = <2>; \
+        __VA_ARGS__ \
+    )
+
+/* Balanced Hold-Tap for home row mods and thumb layer keys */
+#define BALANCED_HOLD_TAP(NAME, ...) \
+    HOLD_TAP(NAME, \
+        flavor = "balanced";  /* Fast hold */ \
+        __VA_ARGS__ \
+    )
+
+/* Mod-Morph helper */
+#define MOD_MORPH(NAME, STANDARD, MORPHED, MODS, ...) \
+    ZMK_BEHAVIOR(NAME, \
+        compatible = "zmk,behavior-mod-morph"; \
+        #binding-cells = <0>; \
+        bindings = <STANDARD>, <MORPHED>; \
+        mods = <(MODS)>; \
+        __VA_ARGS__ \
+    )
+
+/* Mod-Morph that sends another key when Alt is held */
+#define ALT_MORPH(NAME, PRIMARY, ALTERNATE) \
+    MOD_MORPH(NAME, PRIMARY, ALTERNATE, MOD_LALT|MOD_RALT)
+
+/* Mod-Morph that sends another key when Shift is held */
+#define SHIFT_MORPH(NAME, LOWER, UPPER) \
+    MOD_MORPH(NAME, LOWER, UPPER, MOD_LSFT|MOD_RSFT)
+
+/* Tap Dance helper */
+#define TAP_DANCE(NAME, SINGLE, DOUBLE) \
+    ZMK_BEHAVIOR(NAME, \
+        compatible = "zmk,behavior-tap-dance"; \
+        #binding-cells = <0>; \
+        tapping-term-ms = <TAP_DANCE_TIMEOUT_MS>; \
+        bindings = <SINGLE>, <DOUBLE>; \
+    )
+
+/* Wrap ZMK_MACRO to avoid needing to specify Macro node */
+#define ZMKMACRO(NAME, ...) \
+    / { \
+        macros { \
+            ZMK_MACRO(NAME, __VA_ARGS__) \
+        }; \
+    };
+
+/* Wrap ZMK_MACRO1 to avoid needing to specify Macro node */
+#define ZMKMACRO1(NAME, ...) \
+    / { \
+        macros { \
+            ZMK_MACRO1(NAME, __VA_ARGS__) \
+        }; \
+    };
+
+/* Instant key press Macro helper using defined timers */
+#define FAST_MACRO(NAME, BINDINGS) \
+    ZMKMACRO(NAME, \
+        tap-ms = <FAST_MACRO_TAP_MS>; \
+        wait-ms = <FAST_MACRO_WAIT_MS>; \
+        bindings = <BINDINGS>; \
+    )
+
+/* Instant key press one parameter Macro helper using defined timers */
+#define FAST_MACRO1(NAME, BINDINGS) \
+    ZMKMACRO1(NAME, \
+        tap-ms = <FAST_MACRO_TAP_MS>; \
+        wait-ms = <FAST_MACRO_WAIT_MS>; \
+        bindings = <BINDINGS>; \
+    )
+
+/*****************************************************************************/
+                /* Sticky Layer State Machine Helper C Macros */
+/*****************************************************************************/
+
+/* Generic helper for Sticky Layer state machine actions and state
+   transitions. Used to build more specific helpers for features that use this
+   technique. SL_BEHAVIOR argument allows different features to use distinct
+   Sticky Layer implementations. Performs state transitions seamlessly even
+   when rolling into other keys. */
+#define STATE_TRANSITION(NAME, ENTRY, ACTION_BINDING, SL_BEHAVIOR, \
+                         NEXT_STATE_LAYER) \
+    FAST_MACRO(NAME, \
+        ENTRY  /* Optional setup, pass &macro_tap &... */ \
+        &macro_press ACTION_BINDING  /* Main action */ \
+        &macro_tap SL_BEHAVIOR NEXT_STATE_LAYER  /* Move to next state */ \
+        &macro_pause_for_release  /* Hold for repeating key press */ \
+        &macro_release ACTION_BINDING \
+    )
+
+/* State transition macro that allows taking an action after key release, at
+   the cost of not supporting rolls into the next state. */
+#define STATE_TRANSITION_WITH_EXIT(NAME, ENTRY, ACTION_BINDING, EXIT, \
+                                   SL_BEHAVIOR, NEXT_STATE_LAYER) \
+    FAST_MACRO(NAME, \
+        ENTRY  /* Optional setup, pass &macro_tap &... */ \
+        &macro_press ACTION_BINDING  /* Main action */ \
+        &macro_pause_for_release  /* Hold for repeating key press */ \
+        &macro_release ACTION_BINDING \
+        EXIT \
+        &macro_tap SL_BEHAVIOR NEXT_STATE_LAYER  /* Move to next state */ \
+    )
+
+/* Sticky Layer Behavior definition helper */
+#define STICKY_LAYER_HELPER(NAME, TIMEOUT_MS, ...) \
+    ZMK_BEHAVIOR(NAME, \
+        compatible = "zmk,behavior-sticky-key"; \
+        #binding-cells = <1>; \
+        release-after-ms = <TIMEOUT_MS>;  /* Release if no key is pressed */ \
+        bindings = <&mo>; \
+        __VA_ARGS__ \
+    )
+
+/* Quick release Sticky Layer */
+#define STICKY_LAYER_QUICK_RELEASE(NAME, TIMEOUT_MS) \
+    STICKY_LAYER_HELPER(NAME, TIMEOUT_MS, \
+        quick-release;  /* Release as soon as another key is pressed */ \
+        ignore-modifiers;  /* Mods do not release Sticky Layer */ \
+    )
+
+/* Quick release Sticky Layer that does not ignore modifiers */
+#define STICKY_LAYER_NO_MODS(NAME, TIMEOUT_MS) \
+    STICKY_LAYER_HELPER(NAME, TIMEOUT_MS, \
+        quick-release;  /* Release as soon as another key is pressed */ \
+        /delete-property/ ignore-modifiers;  /* Mods release Sticky Layer */ \
+    )
+
+/* Helper for defining Mod Morph filters for catching modifiers on a state
+   Sticky Layer that does not ignore them in order to reset the state
+   machine */
+#define MOD_FILTER_HELPER(NAME, STANDARD, FILTERED, MODS) \
+    MOD_MORPH(NAME, STANDARD, FILTERED, MODS, \
+        keep-mods = <(MODS)>; \
+    )
+
+/* Filter for catching catching all mods */
+#define FILTER_ALL_MODS(NAME, STANDARD, FILTERED) \
+    MOD_FILTER_HELPER(NAME, STANDARD, FILTERED, \
+        MOD_LSFT|MOD_RSFT|MOD_LCTL|MOD_RCTL|MOD_LALT|MOD_RALT|MOD_LGUI| \
+        MOD_RGUI \
+    )
+
+/* Filter for catching all mods except Shift */
+#define FILTER_NON_SHIFT_MODS(NAME, STANDARD, FILTERED) \
+    MOD_FILTER_HELPER(NAME, STANDARD, FILTERED, \
+        MOD_LCTL|MOD_RCTL|MOD_LALT|MOD_RALT|MOD_LGUI|MOD_RGUI \
+    )
+
+/*****************************************************************************/
+                            /* Behavior Changes */
+/*****************************************************************************/
+
+/ {
+    behaviors {
+
+        /* Let Caps Word continue when typing Underscore */
+        caps_word {
+            continue-list = <UNDERSCORE MINUS BACKSPACE DELETE>;
+        };
+
+        /* Use defined timer for Sticky Keys */
+        sticky_key {
+            release-after-ms = <STICKY_KEY_RELEASE_AFTER_MS>;
+            quick-release;
+        };
+
+        /* Use defined timer for Sticky Layers */
+        sticky_layer {
+            release-after-ms = <STICKY_KEY_RELEASE_AFTER_MS>;
+        };
+    };
+};
+
+/*****************************************************************************/
+                                /* Combos */
+/*****************************************************************************/
+
+/* Limit to base layers and use defined timer for most Combos */
+#define COMBO(NAME, KEY_POSITIONS, BINDINGS) \
+    ZMK_COMBO(NAME, COMBO_TIMEOUT_MS, KEY_POSITIONS, BASE_LAYERS, BINDINGS)
+
+/ {
+    combos {
+        compatible = "zmk,combos";
+
+        /* Escape with left home thumb (Space) and left upper pinky (Q) */
+        COMBO(combo_esc, 23 69, &kp ESC)
+
+        /* Caps Word with left and right upper inner thumb keys (Shift) using
+        defined timer */
+        ZMK_COMBO(combo_caps_word, CAPS_WORD_COMBO_TIMEOUT_MS, 52 57, \
+            BASE_LAYERS, &caps_word \
+        )
+    };
+};
+
+/*****************************************************************************/
+                        /* Triple Function Shift Keys */
+/*****************************************************************************/
+
+/* Instant Caps Lock on Mac OS */
+ZMKMACRO(instant_caps_lock, \
+    tap-ms = <200>;  /* Mac OS ignores short taps on Caps Lock */
+    bindings = <&kp CAPS>;
+)
+
+/* Triple function left Shift */
+MOD_MORPH(lshft_caps, &sk LSHFT, &instant_caps_lock, MOD_LSFT)
+
+/* Triple function right Shift with Mac/PC support */
+MOD_MORPH(rshft_bspcwd_mac, &sk RSHFT, &kp LA(BACKSPACE), MOD_RSFT)
+MOD_MORPH(rshft_bspcwd_pc, &sk RSHFT, &kp LC(BACKSPACE), MOD_RSFT)
+
+/*****************************************************************************/
+                /* Editing Layer Alternative Shortcuts */
+/*****************************************************************************/
+
+/* Editing layer alternative shortcuts with Mac/PC support */
+ALT_MORPH(copy_sel_all_mac, &kp LG(C), &kp LG(A))
+ALT_MORPH(copy_sel_all_pc, &kp LC(C), &kp LC(A))
+ALT_MORPH(paste_undo_mac, &kp LG(V), &kp LG(Z))
+ALT_MORPH(paste_undo_pc, &kp LC(V), &kp LC(Z))
+
+/*****************************************************************************/
+                /* One-Handed Opposite Layer Access */
+/*****************************************************************************/
+
+AUTOSHIFT(tog_sl, &tog, &sl)  /* Tap for a single key press, hold to lock */
+
+/*****************************************************************************/
+                        /* Word & Line Selection */
+/*****************************************************************************/
+
+/* Quick release Sticky Layer Behavior that does not ignore modifiers using
+   defined timer for continuing the word and line selection feature */
+STICKY_LAYER_NO_MODS(sl_select_cont, SELECT_TIMEOUT_MS)
+
+/* Select Macro definition helper */
+#define SELECT_HELPER(NAME, SETUP, SELECTION_BINDING, CLEANUP) \
+    STATE_TRANSITION_WITH_EXIT(NAME, SETUP, SELECTION_BINDING, CLEANUP, \
+        &sl_select_cont, SELECT_CONT_SL)
+
+/* Select word start Macro helper */
+#define SELECT_WORD_START_MACRO(NAME, SETUP_BINDINGS, SELECTION_BINDING) \
+    SELECT_HELPER(NAME, &macro_tap SETUP_BINDINGS, SELECTION_BINDING, \
+        /* No CLEANUP */)
+
+/* Select line start Macro helper */
+#define SELECT_LINE_START_MACRO(NAME, SETUP_BINDINGS, SELECTION_BINDING, \
+                                CLEANUP_BINDINGS) \
+    SELECT_HELPER(NAME, &macro_tap SETUP_BINDINGS, SELECTION_BINDING, \
+        &macro_tap CLEANUP_BINDINGS)
+
+/* Select word continue Macro helper */
+#define SELECT_WORD_CONT_MACRO(NAME, SELECTION_BINDING) \
+    SELECT_HELPER(NAME, /* No SETUP */, SELECTION_BINDING, /* No CLEANUP */)
+
+/* Select line continue Macro helper */
+#define SELECT_LINE_CONT_MACRO(NAME, SELECTION_BINDING, CLEANUP_BINDINGS) \
+    SELECT_HELPER(NAME, /* No SETUP */, SELECTION_BINDING, \
+        &macro_tap CLEANUP_BINDINGS)
+
+/* Movement, jumping and selection helper macros */
+#define MAC_WF   LA(RIGHT)              /* Jump forward a word on Mac */
+#define MAC_WB   LA(LEFT)               /* Jump backward a word on Mac */
+#define MAC_HOME LG(LEFT)               /* Jump to start of line on Mac */
+#define PC_WF    LC(RIGHT)              /* Jump forward a word on PC */
+#define PC_WB    LC(LEFT)               /* Jump backward a word on PC */
+#define PC_HOME  HOME                   /* Jump to start of line on PC */
+#define SEL(MOVEMENT) &kp LS(MOVEMENT)  /* Select text */
+
+/* Jump to start or end of word regardless of cursor position */
+#define MAC_START_OF_WD &kp MAC_WF &kp MAC_WB
+#define MAC_END_OF_WD &kp MAC_WB &kp MAC_WF
+#define PC_START_OF_WD &kp PC_WF &kp PC_WB
+#define PC_END_OF_WD &kp PC_WB &kp PC_WF
+
+/* We use LG(LEFT) / HOME twice to avoid an issue with IDEs being too smart and
+   placing the cursor after the indenting whitespace */
+#define MAC_START_OF_LN &kp MAC_HOME &kp MAC_HOME
+#define MAC_START_OF_NEXT_LN &kp DOWN &kp MAC_HOME &kp MAC_HOME
+#define MAC_SEL_START_OF_LN SEL(MAC_HOME) SEL(MAC_HOME)
+#define PC_START_OF_LN &kp PC_HOME &kp PC_HOME
+#define PC_START_OF_NEXT_LN &kp DOWN &kp PC_HOME &kp PC_HOME
+#define PC_SEL_START_OF_LN SEL(PC_HOME) SEL(PC_HOME)
+
+/* Word select Macros for Mac */
+SELECT_WORD_START_MACRO(sel_wd_fwd_mac, MAC_START_OF_WD, SEL(MAC_WF))
+SELECT_WORD_START_MACRO(sel_wd_bwd_mac, MAC_END_OF_WD, SEL(MAC_WB))
+SELECT_WORD_CONT_MACRO(cont_sel_wd_fwd_mac, SEL(MAC_WF))
+SELECT_WORD_CONT_MACRO(cont_sel_wd_bwd_mac, SEL(MAC_WB))
+
+/* Word select Macros for PC */
+SELECT_WORD_START_MACRO(sel_wd_fwd_pc, PC_START_OF_WD, SEL(PC_WF))
+SELECT_WORD_START_MACRO(sel_wd_bwd_pc, PC_END_OF_WD, SEL(PC_WB))
+SELECT_WORD_CONT_MACRO(cont_sel_wd_fwd_pc, SEL(PC_WF))
+SELECT_WORD_CONT_MACRO(cont_sel_wd_bwd_pc, SEL(PC_WB))
+
+/* Line select Macros for Mac */
+SELECT_LINE_START_MACRO(sel_ln_fwd_mac, \
+    MAC_START_OF_LN, SEL(DOWN), MAC_SEL_START_OF_LN)
+SELECT_LINE_START_MACRO(sel_ln_bwd_mac, \
+    MAC_START_OF_NEXT_LN, SEL(UP), MAC_SEL_START_OF_LN)
+SELECT_LINE_CONT_MACRO(cont_sel_ln_fwd_mac, SEL(DOWN), MAC_SEL_START_OF_LN)
+SELECT_LINE_CONT_MACRO(cont_sel_ln_bwd_mac, SEL(UP), MAC_SEL_START_OF_LN)
+
+/* Line select Macros for PC */
+SELECT_LINE_START_MACRO(sel_ln_fwd_pc, \
+    PC_START_OF_LN, SEL(DOWN), PC_SEL_START_OF_LN)
+SELECT_LINE_START_MACRO(sel_ln_bwd_pc, \
+    PC_START_OF_NEXT_LN, SEL(UP), PC_SEL_START_OF_LN)
+SELECT_LINE_CONT_MACRO(cont_sel_ln_fwd_pc, SEL(DOWN), PC_SEL_START_OF_LN)
+SELECT_LINE_CONT_MACRO(cont_sel_ln_bwd_pc, SEL(UP), PC_SEL_START_OF_LN)
