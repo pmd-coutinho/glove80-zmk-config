@@ -312,6 +312,13 @@
         bindings = <&mo>, <TAP_BINDING>; \
     )
 
+#define FAST_SWITCHING_THUMB_LAYER_TAP1(NAME, TAP_BINDING) \
+    BALANCED_HOLD_TAP(NAME, \
+        tapping-term-ms = <THUMBS_TAPPING_TERM_MS>;  /* Rolls send tap key */ \
+        bindings = <&mo>, <TAP_BINDING>; \
+        quick-tap-ms = <150>;  /* 2x tap repeats */ \
+    )
+
 /* Reaching thumb layer tap with double tap to repeat */
 #define REPEATING_THUMB_LAYER_TAP(NAME, TAP_BINDING) \
     BALANCED_HOLD_TAP(NAME, \
@@ -322,6 +329,7 @@
 
 /* Used on Base, Editing and Numbers layers to enable fast switching */
 FAST_SWITCHING_THUMB_LAYER_TAP(fst_lt, &kp)
+FAST_SWITCHING_THUMB_LAYER_TAP1(fst_lt1, &kp)
 
 /* Used on Media and Function layers for Tab and Enter to enable hold to 
    repeat */
