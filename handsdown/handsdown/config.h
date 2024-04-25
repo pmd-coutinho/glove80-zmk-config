@@ -30,10 +30,61 @@
 #define l_cfg   24
 #define LOWER  25
 #define MAGIC 26
+#define FACTORY_TEST 27
 
 #define my_tapping_term 170
 #define my_quick_tapping_term 112
 #define my_ak_delay 40
+
+/* Create a ZMK Behavior without having to specify the name three times */
+#define ZMK_BEHAVIOR(NAME, ...) \
+    / { \
+        behaviors { \
+            NAME: NAME { \
+                __VA_ARGS__ \
+            }; \
+        }; \
+    };
+
+/* Hold-Tap helper */
+#define HOLD_TAP(NAME, ...) \
+    ZMK_BEHAVIOR(NAME, \
+        compatible = "zmk,behavior-hold-tap"; \
+        #binding-cells = <2>; \
+        __VA_ARGS__ \
+    )
+
+#define MOD_MORPH(NAME, STANDARD, MORPHED, MODS, ...) \
+    ZMK_BEHAVIOR(NAME, \
+        compatible = "zmk,behavior-mod-morph"; \
+        #binding-cells = <0>; \
+        bindings = <STANDARD>, <MORPHED>; \
+        mods = <(MODS)>; \
+        __VA_ARGS__ \
+    )
+
+/* Autoshift Behavior using defined timer */
+#define AUTOSHIFT_TAPPING_TERM_MS 200
+
+#define SHIFT_MORPH(NAME, LOWER, UPPER) \
+    MOD_MORPH(NAME, LOWER, UPPER, MOD_LSFT|MOD_RSFT)
+
+#define AUTOSHIFT(NAME, HOLD, TAP) \
+    HOLD_TAP(NAME, \
+        flavor = "tap-preferred"; \
+        tapping-term-ms = <AUTOSHIFT_TAPPING_TERM_MS>;  /* Hold for Shift */ \
+        bindings = <HOLD>, <TAP>; \
+    )
+
+AUTOSHIFT(as, &kp, &kp)  /* Main Autoshift Behavior */
+
+/* Autoshifting Mod-Morph Behavior that sends another key when Shift is held */
+#define AUTOSHIFT_MORPH(NAME, LOWER, UPPER) \
+    SHIFT_MORPH(NAME, &as UPPER LOWER, &kp UPPER)
+
+AUTOSHIFT_MORPH(as_f9_f10, F9, F10)
+AUTOSHIFT_MORPH(as_f11_f12, F11, F12)
+/* Autoshift Behavior using defined timer */
 
 &mt {
     tapping-term-ms = <my_tapping_term>;
