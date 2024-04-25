@@ -55,6 +55,12 @@
 /* How quickly Tap Dance keys must be double tapped to activate */
 #define TAP_DANCE_TIMEOUT_MS 200
 
+#define my_tapping_term 170
+#define my_quick_tapping_term 112
+#define my_ak_delay 40
+
+#define COMBO_TIMEOUT 45
+
 /*****************************************************************************/
                             /* Layer Conditions */
 /*****************************************************************************/
@@ -261,7 +267,7 @@
 
         /* Let Caps Word continue when typing Underscore */
         caps_word {
-            continue-list = <UNDERSCORE MINUS BACKSPACE DELETE>;
+            continue-list = <UNDERSCORE MINUS BACKSPACE DELETE LEFT RIGHT>;
         };
 
         /* Use defined timer for Sticky Keys */
@@ -273,6 +279,13 @@
         /* Use defined timer for Sticky Layers */
         sticky_layer {
             release-after-ms = <STICKY_KEY_RELEASE_AFTER_MS>;
+        };
+
+        mt {
+            tapping-term-ms = <my_tapping_term>;
+        };
+        sl {
+            release-after-ms = <my_tapping_term>;
         };
     };
 };
@@ -399,6 +412,8 @@ AUTOSHIFT_MORPH(as_grave_tilde, GRAVE, TILDE)
 AUTOSHIFT_MORPH(as_minus_plus, MINUS, PLUS)
 AUTOSHIFT_MORPH(as_n0_under, N0, UNDER)
 AUTOSHIFT_MORPH(as_lt_gt, LT, GT)
+AUTOSHIFT_MORPH(as_f9_f10, F9, F10)
+AUTOSHIFT_MORPH(as_f11_f12, F11, F12)
 
 /*****************************************************************************/
                 /* Editing Layer Alternative Shortcuts */

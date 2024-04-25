@@ -13,17 +13,23 @@
 
 // layers
 #define DEFAULT 0
-#define LOWER 1
-#define MAGIC 2
-#define FACTORY_TEST 3
-#define EDITING 4
-#define EDITING_MO 5
-#define SELECT_CONT 6
-#define SELECT_CONT_SL 7
-#define SYMBOL 8
+#define RHODIUM 1
+#define LOWER 2
+#define MAGIC 3
+#define FACTORY_TEST 4
+#define EDITING 5
+#define EDITING_MO 6
+#define SELECT_CONT 7
+#define SELECT_CONT_SL 8
+#define SYMBOL 9
+#define l_akDot 10
+
 #define BASE_LAYERS DEFAULT
+#define layers_hands_down RHODIUM DEFAULT
 
 #include "base.keymap"
+#include "keydefinitions.keymap"
+#include "handsdown.keymap"
 
 / {
     behaviors {
@@ -106,12 +112,23 @@
             // | MAGIC | HOME| END | LEFT | RIGHT|      | BSPC  | LCTRL   | LALT  | | LALT  | RET   | SPACE |      |  UP   | DOWN  |  [   |   ]   | PGDN |
 
             bindings = <
-            &kp F1         &kp F2   &kp F3      &kp F4      &kp F5                                                                                         &kp F6  &kp F7      &kp F8      &kp F9      &kp F10
+            &kp F1         &kp F2   &kp F3      &kp F4      &kp F5                                                                                         &kp F6  &kp F7      &kp F8      &as_f9_f10      &as_f11_f12
             &kp EQUAL      &kp N1   &kp N2      &kp N3      &kp N4      &kp N5                                                                     &kp N6  &kp N7  &kp N8      &kp N9      &kp N0      &kp MINUS
             &kp TAB        &kp Q    &kp W       &kp E       &kp R       &kp T                                                                      &kp Y   &kp U   &kp I       &kp O       &kp P       &kp BSLH
             &kp ESC        &kp A    &kp S       &kp D       &kp F       &kp G                                                                      &kp H   &kp J   &kp K       &kp L       &kp SEMI    &kp SQT
             &kp GRAVE      &kp Z    &kp X       &kp C       &kp V       &kp B   &rshft_bspcwd_mac  &kp LGUI   &layer_td  &kp LCTRL  &kp RGUI &lshft_caps   &kp N   &kp M   &kp COMMA   &kp DOT     &kp FSLH    &kp PG_UP
             &magic MAGIC 0 &kp HOME &kp END     &kp LEFT    &kp RIGHT           &fst_lt1 EDITING_MO BACKSPACE    &kp LCTRL     &kp LALT   &kp LALT  &kp RET   &fst_lt SYMBOL SPACE           &kp UP  &kp DOWN    &kp LBKT    &kp RBKT    &kp PG_DN
+            >;
+        };
+
+        LAYER_hands_down_rhodium {
+            bindings = <
+    &trans    &trans      &trans      &trans        &trans                                                                                        &trans          &trans          &trans        &trans      &trans
+    &trans    &trans      &trans      &trans        &trans          &trans                                                            &trans      &trans          &trans          &trans        &trans      &trans
+    &trans    &kp P       &kp X       &kp H         &kp G           &kp J                                                             &HashTilde  &DotColn        &SlshStar       &DqtLt      &SqtGt    &trans
+    &trans    &kp S       &kp C       &kp N         &kp T           &kp K                                                             &CmmaSemi   &kp A           &kp E           &kp I         &kp M       &trans
+    &trans    &kp B       &kp F       &kp L         &kp D           &kp V     &trans    &trans    &trans  &trans   &trans   &trans    &MinusPlus  &kp U           &kp O           &kp Y         &kp W       &trans
+    &trans    &trans      &trans      &trans        &trans                    &fst_lt1 EDITING_MO R     &kp BACKSPACE  &trans  &trans   &trans &trans             &trans          &trans          &trans        &trans      &trans
             >;
         };
 
@@ -129,7 +146,7 @@
         magic_layer {
             bindings = <
             &bt BT_CLR        &none               &none           &none           &none                                                                                                           &none      &none      &none      &none      &bt BT_CLR_ALL
-            &none             &none               &none           &none           &none           &none                                                                                &none      &none      &none      &none      &none      &none
+            &to 0             &to 1               &none           &none           &none           &none                                                                                &none      &none      &none      &none      &none      &none
             &none             &rgb_ug RGB_SPI     &rgb_ug RGB_SAI &rgb_ug RGB_HUI &rgb_ug RGB_BRI &rgb_ug RGB_TOG                                                                      &none      &none      &none      &none      &none      &none
             &bootloader       &rgb_ug RGB_SPD     &rgb_ug RGB_SAD &rgb_ug RGB_HUD &rgb_ug RGB_BRD &rgb_ug RGB_EFF                                                                      &none      &none      &none      &none      &none      &bootloader
             &sys_reset        &none               &none           &none           &none           &none           &bt_2     &bt_3     &none            &none     &none     &none       &none      &none      &none      &none      &none      &sys_reset
@@ -196,6 +213,17 @@
   &kp HASH  &kp CARET  &kp EQUAL  &kp UNDER  &kp DLLR   &kp STAR                                                                      &kp DOT             &kp BSPC              &kp TAB            &kp SPACE              &kp RET   &none
     &kp AT     &kp LT   &kp PIPE  &kp MINUS    &kp GT   &kp FSLH   &kp BSLH    &kp DOT  &kp STAR              &none   &none   &none  &kp FSLH              &kp DEL          &kp LS(TAB)                &none                &none   &none
  &kp TILDE   &kp AMPS   &kp LBKT   &kp RBKT  &kp PLUS             &kp PRCNT  &kp COLON  &kp SEMI              &none   &none   &none                         &trans               &trans               &trans               &trans   &none
+            >;
+        };
+
+        l_akDot {
+            bindings = <
+ &trans  &trans  &trans  &trans  &trans                                                                  &trans   &trans    &trans  &trans  &trans
+ &trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans   &trans    &trans  &trans  &trans
+ &trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans  &dotcom  &dotcouk  &trans  &trans
+ &trans  &trans  &trans  &trans  &trans  &trans                                                  &trans  &trans   &trans    &trans  &trans  &trans
+ &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans   &trans    &trans  &trans  &trans
+ &trans  &trans  &trans  &trans  &trans          &trans  &trans  &trans  &trans  &trans  &trans          &trans   &trans    &trans  &trans  &trans
             >;
         };
     };

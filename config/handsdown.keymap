@@ -1,0 +1,543 @@
+#define COMBO_LAYER(NAME, BINDINGS, KEYPOS, LAYERS) \
+  combo_##NAME { \
+    bindings = <BINDINGS>; \
+    key-positions = <KEYPOS>; \
+    layers = <LAYERS>; \
+    timeout-ms = <COMBO_TIMEOUT >; \
+};
+#define COMBO_ANY(NAME, BINDINGS, KEYPOS) \
+  combo_##NAME { \
+    bindings = <BINDINGS>; \
+    key-positions = <KEYPOS>; \
+    timeout-ms = <COMBO_TIMEOUT >; \
+};
+
+combos {
+    compatible = "zmk,combos";
+    
+    //
+    // control/modes
+    //
+    COMBO_LAYER(capsWord, &caps_word, LM2 LM1 RM1 RM2, layers_hands_down) // CAPSWORD
+    COMBO_LAYER(capsLock, &kp CAPS, LM3 LM2 RM2 RM3, layers_hands_down) // CAPS LOCK
+
+    //
+    // Editing actions (&whitespace)
+    //
+    COMBO_LAYER(sall, &kp LC(A),      LB4 LB1, layers_hands_down)
+    COMBO_LAYER(selword, &m_selword,  LB4 LB0, layers_hands_down)
+    COMBO_LAYER(undo, &kp LC(Z),      LB4 LB3, layers_hands_down)
+    COMBO_LAYER(redo, &kp LC(Y),  LB4 LB3 LB2, layers_hands_down)
+    COMBO_LAYER(copy, &lk LC(X) LC(C), LB3 LB2, layers_hands_down)
+    COMBO_LAYER(pste, &lk LC(LS(V)) LC(V), LB2 LB1, layers_hands_down)
+    COMBO_LAYER(cloz, &kp LC(W),      LM3 LB3, layers_hands_down)
+    COMBO_LAYER(new,  &kp LC(N),      LM2 LB2, layers_hands_down)
+    COMBO_LAYER(open, &kp LC(O),      LM1 LB1, layers_hands_down)
+    COMBO_LAYER(quit, &kp LC(Q),      LM0 LB0, layers_hands_down)
+    COMBO_LAYER(findsel, &b_findsel LC(F) LC(F),  LM4 LB0, layers_hands_down)
+    COMBO_LAYER(backspaceWord, &kp LC(BSPC), RT0 RT1, layers_hands_down)
+
+    //
+    // type a glyph (tiny board accommodation)
+    //
+    COMBO_LAYER(typeQ, &lk_qu Q U,      LT3 LT1, layers_hands_down)
+    COMBO_LAYER(typeZ, &kp Z,           LM3 LM1, layers_hands_down)
+    COMBO_LAYER(typeColn, &lk LS(SEMI) COLON,    RT1 RT3, layers_hands_down)
+    COMBO_LAYER(typeSemi, &kp SEMI,     RM0 RM1, layers_hands_down)
+    COMBO_LAYER(typeExcl, &kp EXCL,     RT1 RT2, layers_hands_down)
+    COMBO_LAYER(typeQues, &kp QMARK,    RT2 RT3, layers_hands_down)
+    COMBO_LAYER(typeGrav, &kp GRAVE,    RT3 RT4, layers_hands_down)
+    COMBO_LAYER(typeUnder, &kp UNDER,   RB1 RB3, layers_hands_down) // _
+    COMBO_LAYER(typeEqual, &lk PRCNT EQUAL,   RB2 RB3, layers_hands_down) // = (percent if held)
+    COMBO_LAYER(typeTilde, &kp TILDE,   RB1 RB4, layers_hands_down) // tilde (not dead key)
+
+    //
+    // Pronoun combos REQUIRE macros to process
+    //
+
+    COMBO_LAYER(pnI, &typePnI,          RM3 RM4, layers_hands_down) // "I "
+
+    COMBO_LAYER(pnIm, &typePnIm,        RM3 LT2, layers_hands_down) // "I'm "
+    COMBO_LAYER(pnIll, &typePnIll,      RM3 LB2, layers_hands_down) // "I'll "
+    COMBO_LAYER(pnId, &typePnId,        RM3 LB1, layers_hands_down) // "I'd "
+    COMBO_LAYER(pnIve, &typePnIve,      RM3 LB0, layers_hands_down) // "I've "
+
+    COMBO_LAYER(pnYour,  &typePnYour,   RB3 LH1, layers_hands_down) // "Your "
+    COMBO_LAYER(pnYoure, &typePnYoure,  RB3 LB3, layers_hands_down) // "You're "
+    COMBO_LAYER(pnYoull, &typePnYoull,  RB3 LB2, layers_hands_down) // "You'll "
+    COMBO_LAYER(pnYoud, &typePnYoud,    RB3 LB1, layers_hands_down) // "You'd "
+    COMBO_LAYER(pnYouve, &typePnYouve,  RB3 LB0, layers_hands_down) // "You've "
+
+    COMBO_LAYER(pnWere, &typePnWere,    LT4 LH1, layers_hands_down) // "We're "
+    COMBO_LAYER(pnWell, &typePnWell,    LT4 LT2, layers_hands_down) // "We'll "
+    COMBO_LAYER(pnWed, &typePnWed,      LT4 LT1, layers_hands_down) // "We'd "
+    COMBO_LAYER(pnWeve, &typePnWeve,    LT4 LT0, layers_hands_down) // "We've "
+    
+    
+};
+
+behaviors {
+
+    skapp: sticky_key_app_switcher {
+        compatible = "zmk,behavior-sticky-key";
+        label = "SK_APP_SWITCHER";
+        #binding-cells = <1>;
+        bindings = <&kp>;
+        release-after-ms = <900>;
+    };
+
+    // Custom shifted pairs
+    double_quote: double_quote_and_exclamation {
+        compatible = "zmk,behavior-mod-morph";
+        #binding-cells = <0>;
+        label = "DOUBLE_QUOTE_AND_EXCLAMATION";
+        bindings = <&kp DQT>, <&kp EXCL>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    // Custom hold behaviours
+    lk: lk {
+        compatible = "zmk,behavior-hold-tap";
+        label = "lk";
+        #binding-cells = <2>;
+        tapping-term-ms = <my_tapping_term>;
+        flavor = "tap-preferred";
+        bindings = <&kp>, <&kp>;
+    };
+    b_findsel: b_findsel {
+        compatible = "zmk,behavior-hold-tap";
+        label = "b_findsel";
+        #binding-cells = <2>;
+        tapping-term-ms = <my_tapping_term>;
+        flavor = "tap-preferred";
+        bindings = <&m_findsel>, <&kp>;
+    };
+    
+    lk_qu: lk_qu {
+        compatible = "zmk,behavior-hold-tap";
+        label = "lk_qu";
+        #binding-cells = <2>;
+        tapping-term-ms = <my_tapping_term>;
+        flavor = "tap-preferred";
+        bindings = <&kp>, <&Qu>;
+    };
+    CmmaSemi: CmmaSemi {
+        compatible = "zmk,behavior-mod-morph";
+        label = "comma_semi";
+        #binding-cells = <0>;
+        bindings = <&kp CMMA>, <&typeSemi>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    DotColn: DotColn {
+        compatible = "zmk,behavior-mod-morph";
+        label = "DotColn";
+        #binding-cells = <0>;
+        bindings = <&dot_ak>, <&kp COLON>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    SlshStar: SlshStar {
+        compatible = "zmk,behavior-mod-morph";
+        label = "SlshStar";
+        #binding-cells = <0>;
+        bindings = <&kp FSLH>, <&kp STAR>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    HashTilde: HashTilde {
+        compatible = "zmk,behavior-mod-morph";
+        label = "HashTilde";
+        #binding-cells = <0>;
+        bindings = <&kp HASH>, <&kp TILDE>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    MinusPlus: MinusPlus {
+        compatible = "zmk,behavior-mod-morph";
+        label = "MinusPlus";
+        #binding-cells = <0>;
+        bindings = <&kp MINUS>, <&kp PLUS>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    DqtLt: DqtLt {
+        compatible = "zmk,behavior-mod-morph";
+        label = "DqtLt";
+        #binding-cells = <0>;
+        bindings = <&kp DQT>, <&kp LT>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    SqtGt: SqtGt {
+        compatible = "zmk,behavior-mod-morph";
+        label = "SqtGt";
+        #binding-cells = <0>;
+        bindings = <&kp SQT>, <&kp GT>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    BspcDel: Bspc_Del {
+        compatible = "zmk,behavior-mod-morph";
+        label = "Bspc_Del";
+        #binding-cells = <0>;
+        bindings = <&kp BSPC>, <&kp DEL>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    
+    LparLt: LparLt {
+        compatible = "zmk,behavior-mod-morph";
+        label = "LparLt";
+        #binding-cells = <0>;
+        bindings = <&kp LT>, <&kp LPAR>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+    RparGt: RparGt {
+        compatible = "zmk,behavior-mod-morph";
+        label = "RparGt";
+        #binding-cells = <0>;
+        bindings = <&kp GT>, <&kp RPAR>;
+        mods = <(MOD_LSFT|MOD_RSFT)>;
+    };
+};
+
+macros {
+    ZMK_MACRO(Qu,
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp Q>
+            , <&macro_release &kp LSHFT>
+            , <&macro_release &kp RSHFT>
+            , <&macro_tap &kp U>
+            ;
+    )
+    
+    dot_ak: dot_ak {
+        label = "dot_ak";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <50>; // need to slow this down for some systems.
+        bindings = <&macro_tap &kp DOT>
+                , <&sl l_akDot>;
+        };
+    dotcom: dotcom {
+        label = "dotcom";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <50>; // need to slow this down for some systems.
+        bindings = <&kp C &kp O &kp M>
+                ;
+        };
+    dotcouk: dotcouk {
+        label = "dotcouk";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <50>; // need to slow this down for some systems.
+        bindings = <&kp C &kp O &kp DOT &kp U &kp K>
+                ;
+        };
+
+    m_selword: m_selword {
+        label = "m_select word";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp LC(LEFT)>
+                , <&macro_tap &kp LS(LC(RIGHT))>
+            ;
+    };
+
+    m_findsel: m_findsel {
+        label = "Find Selection";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+         bindings = <&macro_tap &kp LC(C)>
+                , <&macro_tap &kp LC(F)>
+                , <&macro_tap &kp LC(V)>
+                , <&macro_tap &kp RETURN>
+                , <&macro_tap &kp LC(G)>
+            ;
+    };
+    
+    Sch: Sch {
+        label = "Sch";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp S>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp C &kp H>
+            ;
+    };
+    Tch: Tch {
+        label = "Tch";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp T>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp C &kp H>
+            ;
+    };
+    
+    ZMK_MACRO(typeSemi,
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_release &kp LSHFT>
+            , <&macro_tap &kp SEMICOLON>
+            ;
+    )
+    
+    Th: Th {
+        label = "Th";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp T>
+            , <&macro_release &kp LSHFT>
+            , <&macro_release &kp RSHFT>
+            , <&macro_tap &kp H>
+            ;
+    };
+    ZMK_MACRO(tion,
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&kp T &kp I &kp O &kp N>
+                ;
+    )
+    ZMK_MACRO(Ch,
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp C>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp H>
+                ;
+        )
+    ZMK_MACRO(Wh,
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp W>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp H>
+                ;
+        )
+    ZMK_MACRO(Sh,
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp S>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp H>
+                ;
+        )
+    ZMK_MACRO(sion,
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&kp S &kp I &kp O &kp N>
+                ;
+        )
+    ZMK_MACRO(Gh,
+            wait-ms = <10>;
+            tap-ms = <10>;
+        bindings = <&macro_tap &kp G>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp H>
+                ;
+        )
+    ZMK_MACRO(ght,
+            wait-ms = <10>;
+            tap-ms = <10>;
+        bindings = <&kp G &kp H &kp T>
+                ;
+        )
+    ZMK_MACRO(Ph,
+            wait-ms = <10>;
+            tap-ms = <10>;
+        bindings = <&macro_tap &kp P>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp H>
+                ;
+        )
+        
+    // Pronouns
+    typePnI: pnI {
+        label = "pnI";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp LS(I)>
+                , <&macro_tap &kp SPACE>
+            ;
+    };
+    typePnIm: pnIm {
+        label = "pnIM";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp LS(I)>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp APOS &kp M &kp SPACE>
+            ;
+    };
+    typePnId: pnId {
+        label = "pnID";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp LS(I)>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp APOS &kp D &kp SPACE>
+            ;
+    };
+    typePnIll: pnIll {
+        label = "pnIL";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp LS(I)>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp APOS &kp L &kp L &kp SPACE>
+            ;
+    };
+    typePnIve: pnIve {
+        label = "pnIVE";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp LS(I)>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp APOS &kp V &kp E &kp SPACE>
+            ;
+    };
+    // YOU
+    typePnYour: pnYour {
+        label = "pnYour";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp Y>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp O &kp U &kp R &kp SPACE>
+            ;
+    };
+    typePnYoure: pnYoure {
+        label = "pnYoure";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp Y>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp O &kp U &kp APOS &kp R &kp E &kp SPACE>
+            ;
+    };
+    typePnYoud: pnYoud {
+        label = "pnYou'd";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp Y>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp O &kp U &kp APOS &kp D &kp SPACE>
+            ;
+    };
+    typePnYoull: pnYoull {
+        label = "pnYou'll";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp Y>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp O &kp U &kp APOS &kp L &kp L &kp SPACE>
+            ;
+    };
+    typePnYouve: pnYouve {
+        label = "pnYou've";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp Y>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp O &kp U &kp APOS &kp V &kp E &kp SPACE>
+            ;
+    };
+    // WE
+    typePnWere: pnWere {
+        label = "pnWere";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp W>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp E &kp APOS &kp R &kp E &kp SPACE>
+            ;
+    };
+    typePnWed: pnWed {
+        label = "pnWe'd";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp W>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp E &kp APOS &kp D &kp SPACE>
+            ;
+    };
+    typePnWell: pnWell {
+        label = "pnWe'll";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp W>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp E &kp APOS &kp L &kp L &kp SPACE>
+            ;
+    };
+    typePnWeve: pnWeve {
+        label = "pnWe've";
+        compatible = "zmk,behavior-macro";
+        #binding-cells = <0>;
+        wait-ms = <10>;
+        tap-ms = <10>;
+        bindings = <&macro_tap &kp W>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp RSHFT>
+                , <&macro_tap &kp E &kp APOS &kp V &kp E &kp SPACE>
+            ;
+    };
+};
+};
+
+/* Automatically generated macro definitions */
+/ {
+    macros {
+    
+    };
+};
