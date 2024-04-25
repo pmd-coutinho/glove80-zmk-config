@@ -32,8 +32,8 @@ l_alpha {
 	&kp F1          &kp F2      &kp F3      &kp F4      &kp F5                                                                                                                     &kp F6      &kp F7      &kp F8      &as_f9_f10  &as_f11_f12
 	&kp EQUAL       &kp N1      &kp N2      &kp N3      &kp N4      &kp N5                                                                                             &kp N6      &kp N7      &kp N8      &kp N9      &kp N0      &kp MINUS
 	&kp TAB         &ak_x       &ak_w       &ak_m       &ak_g       &ak_j                                                                                              &HashDllr   &DotColn    &SlshStar   &DqtLbkt    &SqtRbkt    &kp BSLH
-	&kp TAB         &kp S       &ak_c       &kp N       &ak_t       &ak_k                                                                                              &CmmaSemi   &ak_a       &ak_e       &ak_i       &kp H       &kp SQT
-	&kp GRAVE       &ak_b       &ak_p       &kp L       &ak_d       &ak_v   &kp LSHFT     &kp LGUI       &layer_td  &kp LCTRL    &kp RGUI            &kp RSHFT       &MinusPlus  &ak_u       &ak_o       &ak_y       &kp F       &kp PG_UP
+	&kp TAB         &kp S       &ak_c       &kp N       &ak_t       &ak_k                                                                                              &CmmaSemi   &ak_a       &ak_e       &ak_i       &kp H       &lk_qu Q U
+	&kp GRAVE       &ak_b       &ak_p       &kp L       &ak_d       &ak_v   &kp LSHFT     &kp LGUI       &layer_td  &kp LCTRL    &kp RGUI            &kp RSHFT       &MinusPlus  &ak_u       &ak_o       &ak_y       &kp F       &kp Z
 	&magic MAGIC 0  &kp HOME    &kp END     &kp LEFT    &kp RIGHT           &lt l_nav R   &mm_bspc_del   &kp LALT   &kp LALT     &lt l_nav RETURN    &lt l_sym SPACE               &kp UP      &kp DOWN    &kp LBKT    &kp RBKT    &kp PG_DN
 	>;
 };
