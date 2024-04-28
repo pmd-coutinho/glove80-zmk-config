@@ -111,3 +111,37 @@
 #define KEYS_R RC1, RC2, RC3, RC4, RC5, RN0, RN1, RN2, RN3, RN4, RN5, RT0, RT1, RT2, RT3, RT4, RT5, RM0, RM1, RM2, RM3, RM4, RM5, RB0, RB1, RB2, RB3, RB4, RB5, RF1, RF2, RF3, RF4, RF5
 
 #define THUMBS LH5, LH4, LH3, LH2, LH1, LH0, RH0, RH1, RH2, RH3, RH4, RH5
+
+#define A_KEY 41
+#define B_KEY 39
+#define C_KEY 48
+#define D_KEY 50
+#define E_KEY 42
+#define F_KEY 24
+#define G_KEY 51
+#define H_KEY 44
+#define I_KEY 43
+#define J_KEY 45
+#define K_KEY 62
+#define L_KEY 49
+#define M_KEY 25
+#define N_KEY 37
+#define O_KEY 60
+#define P_KEY 26
+#define Q_KEY 30
+#define R_KEY 35
+#define S_KEY 36
+#define T_KEY 38
+#define U_KEY 59
+#define V_KEY 27
+#define W_KEY 23
+#define X_KEY 47
+#define Y_KEY 61
+#define Z_KEY 33
+
+#define FSLASH_KEY 28
+#define COMMA_KEY 40
+#define DOT_KEY 29
+#define DQUOTE_KEY 31
+#define SQUOTE_KEY 32
+#define MINUS_KEY 58

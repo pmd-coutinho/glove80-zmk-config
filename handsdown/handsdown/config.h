@@ -97,4 +97,4 @@ AUTOSHIFT_MORPH(as_f11_f12, F11, F12)
 };
 
 
-#define EN_PRONOUN_COMBOS //  (I, I'm, I've I'd I'll etc)
+// #define EN_PRONOUN_COMBOS //  (I, I'm, I've I'd I'll etc)

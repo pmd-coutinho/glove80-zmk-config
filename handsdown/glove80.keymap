@@ -14,7 +14,7 @@
 	
 	keymap {
 		compatible = "zmk,keymap";
-		#include "handsdown/glove.alpha.HD-vb.dtsi"// base (alpha) layer (& related adaptive layers)
+		#include "handsdown/glove.alpha.HD-neu.dtsi"// base (alpha) layer (& related adaptive layers)
 		#include "handsdown/glove.layers.dtsi"// all other (common) layers (shouldn't vary)
 		lower_layer {
 			bindings = <

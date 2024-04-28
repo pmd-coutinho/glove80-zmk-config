@@ -237,6 +237,16 @@
             tap-ms = <10>;
         bindings = <&kp BSPC &kp C &kp K>;
         )
+    ZMK_MACRO(ak_lb,
+            wait-ms = <10>;
+            tap-ms = <10>;
+        bindings = <&kp BSPC &kp L &kp B>;
+        )
+    ZMK_MACRO(ak_lv,
+            wait-ms = <10>;
+            tap-ms = <10>;
+        bindings = <&kp BSPC &kp L &kp V>;
+        )
     ZMK_MACRO(ak_c,
             wait-ms = <10>;
             tap-ms = <10>;
